@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: leaf,spine
   become: true
   tasks:
   - name: Copy over interfaces
@@ -17,6 +17,12 @@
 - hosts: host
   become: true
   tasks:
+  - name: Copy over interfaces
+    copy: src=./flatfiles/{{ansible_hostname}}/interfaces dest=/etc/network/interfaces
+
+  - name: bring up interfaces
+    shell: ifup eth1 && ifup eth2 && ifup uplink
+
   - name: Workaround for CITC server behaviour1
     shell: ethtool -s eth1 speed 1000 duplex full
 
