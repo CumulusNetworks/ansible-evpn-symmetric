@@ -1,0 +1,20 @@
+
+[leaf]
+leaf01 ansible_host=192.168.0.11
+leaf02 ansible_host=192.168.0.12
+leaf03 ansible_host=192.168.0.13
+leaf04 ansible_host=192.168.0.14
+
+[spine]
+spine01 ansible_host=192.168.0.21
+spine02 ansible_host=192.168.0.22
+
+[host]
+server01 ansible_host=192.168.0.31
+server02 ansible_host=192.168.0.32
+server03 ansible_host=192.168.0.33
+server04 ansible_host=192.168.0.34
+
+[all:vars]
+ansible_user=cumulus
+ansible_ssh_pass=CumulusLinux!

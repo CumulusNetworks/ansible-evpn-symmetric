@@ -1,0 +1,37 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: Copy over interfaces
+    copy: src=./flatfiles/{{ansible_hostname}}/interfaces dest=/etc/network/interfaces
+    notify: reload networking
+
+  - name: Copy over daemons
+    copy: src=./flatfiles/{{ansible_hostname}}/daemons dest=/etc/frr/daemons
+    notify: restart frr
+
+  - name: Copy over frr
+    copy: src=./flatfiles/{{ansible_hostname}}/frr.conf dest=/etc/frr/frr.conf
+    notify: reload frr
+
+- hosts: server
+  become: true
+  tasks:
+  - name: Workaround for CITC server behaviour1
+    shell: ethtool -s eth1 speed 1000 duplex full
+
+  - name: Workaround for CITC server behaviour eth2
+    shell: ethtool -s eth2 speed 1000 duplex full
+
+  - name: Apply workaround by restarting networking
+    shell: systemctl restart networking
+
+  handlers:
+  - name: reload networking
+    shell: ifreload -a
+
+  - name: restart frr
+    service: name=frr state=restarted
+
+  - name: reload frr
+    service: name=frr state=reloaded

@@ -1,0 +1,13 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: Backup interfaces
+    fetch: src=/etc/network/interfaces dest=./flatfiles/{{ansible_hostname}}/interfaces flat=yes
+
+  - name: Backup daemons
+    fetch: src=/etc/frr/daemons dest=./flatfiles/{{ansible_hostname}}/daemons flat=yes
+
+  - name: Backup frr
+    fetch: src=/etc/frr/frr.conf dest=./flatfiles/{{ansible_hostname}}/frr.conf flat=yes
+
