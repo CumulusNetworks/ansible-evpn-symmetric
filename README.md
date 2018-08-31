@@ -1,3 +1,6 @@
+The comprehensive demo built on cldemo-vagrant is here:
+https://github.com/CumulusNetworks/cldemo-evpn-symmetric
+
 # ansible-evpn-symmetric
 
 This demo deploys a VXLAN architecture that provides VRF tenancy and EVPN as the control plane using flat files.
