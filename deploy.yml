@@ -14,7 +14,7 @@
     copy: src=./flatfiles/{{ansible_hostname}}/frr.conf dest=/etc/frr/frr.conf
     notify: reload frr
 
-- hosts: server
+- hosts: host
   become: true
   tasks:
   - name: Workaround for CITC server behaviour1
