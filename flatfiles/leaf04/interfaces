@@ -9,6 +9,9 @@ iface eth0 inet dhcp
 auto swp1
 iface swp1
 
+auto swp2
+iface swp2
+
 auto swp49
 iface swp49
 
@@ -21,6 +24,19 @@ iface swp51
 auto swp52
 iface swp52
 
+######
+### Define VRF and L3VNI
+######
+auto RED
+iface RED
+    vrf-table auto
+
+auto vlan4001
+iface vlan4001
+    vlan-id 4001
+    vlan-raw-device bridge
+    vrf RED
+
 auto L3VNI_RED
 iface L3VNI_RED
     bridge-access 4001
@@ -31,32 +47,53 @@ iface L3VNI_RED
     vxlan-id 104001
     vxlan-local-tunnelip 10.255.255.14
 
-auto RED
-iface RED
+auto BLUE
+iface BLUE
     vrf-table auto
 
+auto vlan4002
+iface vlan4002
+    vlan-id 4002
+    vlan-raw-device bridge
+    vrf BLUE
+
+auto L3VNI_BLUE
+iface L3VNI_BLUE
+    bridge-access 4002
+    bridge-arp-nd-suppress on
+    bridge-learning off
+    mstpctl-bpduguard yes
+    mstpctl-portbpdufilter yes
+    vxlan-id 104002
+    vxlan-local-tunnelip 10.255.255.14
+
+#####
+### Define server clag bonds
+#####
 auto SERVER03
 iface SERVER03
     bond-slaves swp1
     bridge-access 10
     clag-id 3
 
-auto VXLAN10
-iface VXLAN10
-    bridge-access 10
-    bridge-arp-nd-suppress on
-    bridge-learning off
-    mstpctl-bpduguard yes
-    mstpctl-portbpdufilter yes
-    vxlan-id 10010
-    vxlan-local-tunnelip 10.255.255.14
+auto SERVER04
+iface SERVER04
+    bond-slaves swp2
+    bridge-access 20
+    clag-id 4
 
+#####
+### Define bridge
+#####
 auto bridge
 iface bridge
-    bridge-ports L3VNI_RED SERVER03 VXLAN10 peerlink
-    bridge-vids 10 4001
+    bridge-ports L3VNI_RED L3VNI_BLUE SERVER03 SERVER04 VXLAN10 VXLAN20 peerlink
+    bridge-vids 10 20 4001 4002
     bridge-vlan-aware yes
 
+#####
+### Define clag
+#####
 auto peerlink
 iface peerlink
     bond-slaves swp49 swp50
@@ -68,6 +105,19 @@ iface peerlink.4094
     clagd-priority 1000
     clagd-sys-mac 44:38:39:FF:00:01
 
+#####
+### Define VXLAN interfaces
+#####
+auto VXLAN10
+iface VXLAN10
+    bridge-access 10
+    bridge-arp-nd-suppress on
+    bridge-learning off
+    mstpctl-bpduguard yes
+    mstpctl-portbpdufilter yes
+    vxlan-id 10010
+    vxlan-local-tunnelip 10.255.255.14
+
 auto vlan10
 iface vlan10
     address 10.1.1.3/24
@@ -76,8 +126,20 @@ iface vlan10
     vlan-raw-device bridge
     vrf RED
 
-auto vlan4001
-iface vlan4001
-    vlan-id 4001
+auto VXLAN20
+iface VXLAN20
+    bridge-access 20
+    bridge-arp-nd-suppress on
+    bridge-learning off
+    mstpctl-bpduguard yes
+    mstpctl-portbpdufilter yes
+    vxlan-id 10020
+    vxlan-local-tunnelip 10.255.255.14
+
+auto vlan20
+iface vlan20
+    address 10.2.2.3/24
+    address-virtual 00:00:00:00:00:1b 10.2.2.1/24
+    vlan-id 20
     vlan-raw-device bridge
-    vrf RED
+    vrf BLUE
