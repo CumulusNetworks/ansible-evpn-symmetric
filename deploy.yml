@@ -15,6 +15,16 @@
     copy: src=./flatfiles/{{inventory_hostname}}/frr.conf dest=/etc/frr/frr.conf
     notify: reload frr
 
+  handlers:
+  - name: reload networking
+    shell: ifreload -a
+
+  - name: restart frr
+    service: name=frr state=restarted
+
+  - name: reload frr
+    service: name=frr state=reloaded
+
 - hosts: host
   become: true
   tasks:
