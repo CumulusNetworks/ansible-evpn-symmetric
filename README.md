@@ -175,7 +175,7 @@ Step by step instructions below, or you can run the following command to have An
 
 cumulus@oob-mgmt-server:~$ ansible-playbook deploy-routeleaks.yml
 
-### Server config changes:
+### Server Configuration Changes:
 Run "ip route" - note the default route points out the management eth0, for instance. If you want to ping 10.2.2.0 devices, you don’t have a route into the EVPN cloud. You’ll want to add a route to each server.
 
 Server01 and server03 would get the following entry at the bottom of /etc/network/interfaces file: 
@@ -199,7 +199,7 @@ default via 192.168.0.254 dev eth0
 cumulus@server01:~$ 
 ```
 
-### Leaf Config changes:
+### Leaf Configuration Changes:
 Add VRF static route leaking per documentation:
 https://docs.cumulusnetworks.com/display/DOCS/Virtual+Routing+and+Forwarding+-+VRF#VirtualRoutingandForwarding-VRF-EVPN_static_route_leakConfiguringStaticRouteLeakingwithEVPN
 
@@ -213,11 +213,11 @@ cumulus@leaf02:~$ net commit
 Repeat this process for each leaf.
 
 ### Run show commands, you should now see a static route between VRF's
-...
+```
 cumulus@leaf01:~$ net show route vrf RED
 
 show ip route vrf RED
-======================
+
 Codes: K - kernel route, C - connected, S - static, R - RIP,
        O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
        T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
@@ -234,7 +234,7 @@ S>* 10.2.2.0/24 [1/0] is directly connected, BLUE(vrf BLUE), 00:05:45
 
 
 show ipv6 route vrf RED
-========================
+
 Codes: K - kernel route, C - connected, S - static, R - RIPng,
        O - OSPFv3, I - IS-IS, B - BGP, N - NHRP, T - Table,
        v - VNC, V - VNC-Direct, A - Babel, D - SHARP, F - PBR,
@@ -255,7 +255,7 @@ cumulus@leaf01:~$
 cumulus@leaf01:~$ net show route vrf BLUE
 
 show ip route vrf BLUE
-=======================
+
 Codes: K - kernel route, C - connected, S - static, R - RIP,
        O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
        T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
@@ -272,7 +272,7 @@ C>* 10.2.2.0/24 is directly connected, vlan20, 00:05:42
 
 
 show ipv6 route vrf BLUE
-=========================
+
 Codes: K - kernel route, C - connected, S - static, R - RIPng,
        O - OSPFv3, I - IS-IS, B - BGP, N - NHRP, T - Table,
        v - VNC, V - VNC-Direct, A - Babel, D - SHARP, F - PBR,
