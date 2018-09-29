@@ -169,12 +169,12 @@ Route Distinguisher: 10.255.255.14:4
 Displayed 23 prefixes (37 paths)
 ```
 
-Optional - Route leaking between the BLUE and RED VPN's.
+## Optional - Route leaking between the BLUE and RED VPN's.
 
 Step by step instructions below, or you can run the following command to have Ansible deploy the changes for you.
 ansible-playbook deploy-routeleaks.yml
 
-Server config changes:
+### Server config changes:
 Run "ip route" - note the default route points out the management eth0, for instance. If you want to ping 10.2.2.0 devices, you don’t have a route into the EVPN cloud. You’ll want to add a route to each server.
 
 Server01 and server03 would get the following entry at the bottom of /etc/network/interfaces file
@@ -194,7 +194,7 @@ default via 192.168.0.254 dev eth0
 192.168.0.0/16 dev eth0  proto kernel  scope link  src 192.168.0.31
 cumulus@server01:~$
 
-Leaf Config changes:
+### Leaf Config changes:
 
 Add VRF static route leaking per documentation:
 https://docs.cumulusnetworks.com/display/DOCS/Virtual+Routing+and+Forwarding+-+VRF#VirtualRoutingandForwarding-VRF-EVPN_static_route_leakConfiguringStaticRouteLeakingwithEVPN
@@ -206,7 +206,7 @@ cumulus@leaf02:~$ net commit
 
 Repeat this process for each leaf.
 
-Run show commands, you should now see a static route between VRF's
+### Run show commands, you should now see a static route between VRF's
 
 cumulus@leaf02:~$ net show route vrf RED
 
@@ -277,7 +277,7 @@ C * fe80::/64 is directly connected, vlan20, 00:20:51
 C>* fe80::/64 is directly connected, vlan4002, 00:20:51
 K>* ff00::/8 [0/256] is directly connected, vlan20-v0, 00:20:51
 
-The test:
+##@ The test:
 
 uplink    Link encap:Ethernet  HWaddr 44:38:39:00:08:01
           inet addr:10.1.1.101  Bcast:10.1.1.255  Mask:255.255.255.0
