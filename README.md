@@ -179,12 +179,14 @@ cumulus@oob-mgmt-server:~$ ansible-playbook deploy-routeleaks.yml
 Run "ip route" - note the default route points out the management eth0, for instance. If you want to ping 10.2.2.0 devices, you don’t have a route into the EVPN cloud. You’ll want to add a route to each server.
 
 Server01 and server03 would get the following entry at the bottom of /etc/network/interfaces file: 
-
+```
 post-up ip route add 10.2.2.0/24 via 10.1.1.2
-
+```
 Server02 and server04 would have the following route:
-
+```
 post-up ip route add 10.1.1.0/24 via 10.2.2.2
+```
+### Restart Networking on each server
 ```
 cumulus@server01:~$ sudo systemctl restart networking
 ```
@@ -213,6 +215,8 @@ cumulus@leaf02:~$ net commit
 Repeat this process for each leaf.
 
 ### Run show commands, you should now see a static route between VRF's
+
+#### Show static route in VRF RED
 ```
 cumulus@leaf01:~$ net show route vrf RED
 
@@ -250,7 +254,7 @@ K>* ff00::/8 [0/256] is directly connected, vlan10-v0, 00:05:58
 
 cumulus@leaf01:~$
 ```
-
+#### Show static route in VRF BLUE
 ```
 cumulus@leaf01:~$ net show route vrf BLUE
 
@@ -301,7 +305,7 @@ uplink    Link encap:Ethernet  HWaddr 44:38:39:00:08:01
           collisions:0 txqueuelen:1000
           RX bytes:2112156 (2.1 MB)  TX bytes:1793866 (1.7 MB)
 ```
-
+#### Ping from server01 to server01
 ```
 cumulus@server01:~$ ping 10.2.2.102
 PING 10.2.2.102 (10.2.2.102) 56(84) bytes of data.
@@ -313,7 +317,7 @@ PING 10.2.2.102 (10.2.2.102) 56(84) bytes of data.
 rtt min/avg/max/mdev = 3.128/3.304/3.481/0.185 ms
 cumulus@server01:~$
 ```
-
+#### Ping from server01 to server04
 ```
 cumulus@server01:~$ ping 10.2.2.104
 PING 10.2.2.104 (10.2.2.104) 56(84) bytes of data.
