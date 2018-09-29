@@ -172,9 +172,9 @@ Displayed 23 prefixes (37 paths)
 ## Optional - Route leaking between the BLUE and RED VPN's.
 
 Step by step instructions below, or you can run the following command to have Ansible deploy the changes for you.
-
+```
 cumulus@oob-mgmt-server:~$ ansible-playbook deploy-routeleaks.yml
-
+```
 ### Server Configuration Changes:
 Run "ip route" - note the default route points out the management eth0, for instance. If you want to ping 10.2.2.0 devices, you don’t have a route into the EVPN cloud. You’ll want to add a route to each server.
 
@@ -305,7 +305,7 @@ uplink    Link encap:Ethernet  HWaddr 44:38:39:00:08:01
           collisions:0 txqueuelen:1000
           RX bytes:2112156 (2.1 MB)  TX bytes:1793866 (1.7 MB)
 ```
-#### Ping from server01 to server01
+#### Ping from server01 to server02
 ```
 cumulus@server01:~$ ping 10.2.2.102
 PING 10.2.2.102 (10.2.2.102) 56(84) bytes of data.
