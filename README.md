@@ -24,11 +24,13 @@ Step 3: Clone this repo:
 git clone https://github.com/CumulusNetworks/ansible-evpn-symmetric.git
 
 Step 4: Change directory to cloned directory
+```
 cd ansible-evpn-symmetric
-
+```
 Step 5: Run the demo:
-ansible-playbook deploy.yml
-
+```
+cumulus@oob-mgmt-server:~$ ansible-playbook deploy.yml
+```
 
 ## Verification of output
 
