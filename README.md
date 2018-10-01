@@ -169,7 +169,7 @@ Route Distinguisher: 10.255.255.14:4
 Displayed 23 prefixes (37 paths)
 ```
 
-## Optional - Route leaking between the BLUE and RED VPN's.
+## Optional - Route leaking between the BLUE and RED VRF's.
 
 Step by step instructions below, or you can run the following command to have Ansible deploy the changes for you.
 ```
