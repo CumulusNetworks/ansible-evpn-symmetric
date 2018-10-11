@@ -21,11 +21,13 @@ https://cumulusnetworks.com/products/cumulus-in-the-cloud/
 Step 2: Log into the oob-mgmt-server of the blank slate
 
 Step 3: Clone this repo:
-git clone https://github.com/CumulusNetworks/ansible-evpn-symmetric.git
+```
+git clone https://github.com/CumulusNetworks/citc-evpn-symmetric.git
+```
 
 Step 4: Change directory to cloned directory
 ```
-cd ansible-evpn-symmetric
+cd citc-evpn-symmetric
 ```
 Step 5: Run the demo:
 ```
