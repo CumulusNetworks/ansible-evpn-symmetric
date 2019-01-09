@@ -33,7 +33,7 @@ iface RED
 
 auto vlan4001
 iface vlan4001
-		hwaddress 44:39:39:FF:40:01
+    hwaddress 44:39:39:FF:40:01
     vlan-id 4001
     vlan-raw-device bridge
     vrf RED
@@ -54,7 +54,7 @@ iface BLUE
 
 auto vlan4002
 iface vlan4002
-		hwaddress 44:39:39:FF:40:02
+    hwaddress 44:39:39:FF:40:02
     vlan-id 4002
     vlan-raw-device bridge
     vrf BLUE
