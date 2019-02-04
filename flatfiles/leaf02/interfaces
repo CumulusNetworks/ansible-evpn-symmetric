@@ -90,7 +90,7 @@ iface SERVER02
 auto bridge
 iface bridge
     bridge-ports L3VNI_RED L3VNI_BLUE SERVER01 SERVER02 VXLAN10 VXLAN20 peerlink
-    bridge-vids 10 20 4001 4002
+    bridge-vids 10 20
     bridge-vlan-aware yes
 
 #####
