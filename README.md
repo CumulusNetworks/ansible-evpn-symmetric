@@ -175,3 +175,144 @@ Route Distinguisher: 10.255.255.14:4
 
 Displayed 23 prefixes (37 paths)
 ```
+
+Optional - Route leaking between the BLUE and RED VPN's.
+
+Step by step instructions below, or you can run the following command to have Ansible deploy the changes for you.
+ansible-playbook deploy-routeleaks.yml
+
+Server config changes:
+Run "ip route" - note the default route points out the management eth0, for instance. If you want to ping 10.2.2.0 devices, you don’t have a route into the EVPN cloud. You’ll want to add a route to each server.
+
+Server01 and server03 would get the following entry at the bottom of /etc/network/interfaces file
+post-up ip route add 10.2.2.0/24 via 10.1.1.2
+
+Server02 and server04 would have the following route
+post-up ip route add 10.1.1.0/24 via 10.2.2.2
+
+cumulus@server01:~$ sudo systemctl restart networking
+
+If you run “ip route” command again, you should now have a route to that remote subnet.
+
+cumulus@server01:~$ ip route
+default via 192.168.0.254 dev eth0
+10.1.1.0/24 dev uplink  proto kernel  scope link  src 10.1.1.101
+10.2.2.0/24 via 10.1.1.2 dev uplink
+192.168.0.0/16 dev eth0  proto kernel  scope link  src 192.168.0.31
+cumulus@server01:~$
+
+Leaf Config changes:
+
+Add VRF static route leaking per documentation:
+https://docs.cumulusnetworks.com/display/DOCS/Virtual+Routing+and+Forwarding+-+VRF#VirtualRoutingandForwarding-VRF-EVPN_static_route_leakConfiguringStaticRouteLeakingwithEVPN
+
+cumulus@leaf02:~$ net add routing route 10.1.1.0/24 RED vrf BLUE nexthop-vrf RED
+cumulus@leaf02:~$ net add routing route 10.2.2.0/24 BLUE vrf RED nexthop-vrf BLUE
+cumulus@leaf02:~$ net pending
+cumulus@leaf02:~$ net commit
+
+Repeat this process for each leaf.
+
+Run show commands, you should now see a static route between VRF's
+
+cumulus@leaf02:~$ net show route vrf RED
+
+show ip route vrf RED
+======================
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR,
+       > - selected route, * - FIB route
+
+
+VRF RED:
+K * 0.0.0.0/0 [255/8192] unreachable (ICMP unreachable), 00:20:47
+C * 10.1.1.0/24 is directly connected, vlan10-v0, 00:20:47
+C>* 10.1.1.0/24 is directly connected, vlan10, 00:20:47
+B>* 10.1.1.103/32 [20/0] via 192.168.1.34, vlan4001 onlink, 00:19:23
+S>* 10.2.2.0/24 [1/0] is directly connected, BLUE(vrf BLUE), 00:00:10
+
+
+
+show ipv6 route vrf RED
+========================
+Codes: K - kernel route, C - connected, S - static, R - RIPng,
+       O - OSPFv3, I - IS-IS, B - BGP, N - NHRP, T - Table,
+       v - VNC, V - VNC-Direct, A - Babel, D - SHARP, F - PBR,
+       > - selected route, * - FIB route
+
+
+VRF RED:
+K * ::/0 [255/8192] unreachable (ICMP unreachable)(vrf Default-IP-Routing-Table), 00:20:47
+C * fe80::/64 is directly connected, vlan10-v0, 00:20:47
+C * fe80::/64 is directly connected, vlan10, 00:20:47
+C>* fe80::/64 is directly connected, vlan4001, 00:20:47
+K>* ff00::/8 [0/256] is directly connected, vlan10-v0, 00:20:47
+
+cumulus@leaf02:~$ net show route vrf BLUE
+
+show ip route vrf BLUE
+=======================
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR,
+       > - selected route, * - FIB route
+
+
+VRF BLUE:
+K * 0.0.0.0/0 [255/8192] unreachable (ICMP unreachable), 00:20:51
+S   10.1.1.0/24 [1/0] is directly connected, RED(vrf RED), 00:00:14
+C>* 10.1.1.0/24 is directly connected, vlan20, 00:20:51
+C>* 10.2.2.0/24 is directly connected, vlan20-v0, 00:20:51
+
+
+
+show ipv6 route vrf BLUE
+=========================
+Codes: K - kernel route, C - connected, S - static, R - RIPng,
+       O - OSPFv3, I - IS-IS, B - BGP, N - NHRP, T - Table,
+       v - VNC, V - VNC-Direct, A - Babel, D - SHARP, F - PBR,
+       > - selected route, * - FIB route
+
+
+VRF BLUE:
+K * ::/0 [255/8192] unreachable (ICMP unreachable)(vrf Default-IP-Routing-Table), 00:20:51
+C * fe80::/64 is directly connected, vlan20-v0, 00:20:51
+C * fe80::/64 is directly connected, vlan20, 00:20:51
+C>* fe80::/64 is directly connected, vlan4002, 00:20:51
+K>* ff00::/8 [0/256] is directly connected, vlan20-v0, 00:20:51
+
+The test:
+
+uplink    Link encap:Ethernet  HWaddr 44:38:39:00:08:01
+          inet addr:10.1.1.101  Bcast:10.1.1.255  Mask:255.255.255.0
+          inet6 addr: fe80::4638:39ff:fe00:801/64 Scope:Link
+          UP BROADCAST RUNNING MASTER MULTICAST  MTU:9000  Metric:1
+          RX packets:18954 errors:0 dropped:4039 overruns:0 frame:0
+          TX packets:14581 errors:0 dropped:1 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:2112156 (2.1 MB)  TX bytes:1793866 (1.7 MB)
+
+cumulus@server01:~$ ping 10.2.2.102
+PING 10.2.2.102 (10.2.2.102) 56(84) bytes of data.
+64 bytes from 10.2.2.102: icmp_seq=1 ttl=63 time=3.48 ms
+64 bytes from 10.2.2.102: icmp_seq=2 ttl=63 time=3.12 ms
+^C
+--- 10.2.2.102 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1001ms
+rtt min/avg/max/mdev = 3.128/3.304/3.481/0.185 ms
+cumulus@server01:~$
+
+cumulus@server01:~$ ping 10.2.2.104
+PING 10.2.2.104 (10.2.2.104) 56(84) bytes of data.
+64 bytes from 10.2.2.104: icmp_seq=1 ttl=62 time=12.6 ms
+64 bytes from 10.2.2.104: icmp_seq=2 ttl=62 time=8.51 ms
+^C
+--- 10.2.2.104 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1002ms
+rtt min/avg/max/mdev = 8.512/10.568/12.625/2.059 ms
+cumulus@server01:~$
+
+

@@ -27,5 +27,5 @@ iface uplink inet static
   address 10.1.1.103
   netmask 255.255.255.0
 
-
+  post-up ip route add 10.2.2.0/24 via 10.1.1.2
 

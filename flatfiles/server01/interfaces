@@ -27,3 +27,5 @@ iface uplink inet static
   bond-xmit-hash-policy layer3+4
   address 10.1.1.101
   netmask 255.255.255.0
+
+  post-up ip route add 10.2.2.0/24 via 10.1.1.2
