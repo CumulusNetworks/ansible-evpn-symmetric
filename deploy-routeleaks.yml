@@ -1,0 +1,26 @@
+---
+- hosts: leaf
+  become: true
+  gather_facts: false
+  tasks:
+  - name: Add Route Leak VRF Blue to VRF RED
+    shell: net add routing route 10.1.1.0/24 RED vrf BLUE nexthop-vrf RED
+    
+  - name: Add Route Leak VRF RED to VRF BLUE
+    shell: net add routing route 10.2.2.0/24 BLUE vrf RED nexthop-vrf BLUE
+
+  - name: NCLU Commit
+    shell: net commit
+
+- hosts: host
+  become: true
+  tasks:
+  - name: Copy over interfaces
+    copy: src=./flatfiles/{{ansible_hostname}}/interfaces dest=/etc/network/interfaces
+
+  - name: Apply workaround by restarting networking
+    shell: systemctl restart networking
+
+  handlers:
+  - name: reload networking
+    shell: ifreload -a
